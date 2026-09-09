@@ -74,3 +74,6 @@ require (
 	google.golang.org/grpc v1.83.2 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 )
+
+// Temporary: Agents secrets API from adamcrews/go-github feat/agents-secrets-v89
+replace github.com/google/go-github/v89 => ./third_party/go-github

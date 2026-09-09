@@ -1,0 +1,4 @@
+[submodule "third_party/go-github"]
+	path = third_party/go-github
+	url = https://github.com/adamcrews/go-github.git
+	branch = feat/agents-secrets-v89
