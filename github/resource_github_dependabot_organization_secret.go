@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/integrations/terraform-provider-github/v6/internal/tfschemautil"
+	"github.com/integrations/terraform-provider-github/v6/internal/tfpluginv2util"
 )
 
 func resourceGithubDependabotOrganizationSecret() *schema.Resource {
@@ -123,7 +123,7 @@ func resourceGithubDependabotOrganizationSecretCreate(ctx context.Context, d *sc
 
 	secretName := d.Get("secret_name").(string)
 	keyID := d.Get("key_id").(string)
-	encryptedValue, _ := tfschemautil.GetKeysOk[string](d, "value_encrypted", "encrypted_value")
+	encryptedValue, _ := tfpluginv2util.GetKeysOk[string](d, "value_encrypted", "encrypted_value")
 	visibility := d.Get("visibility").(string)
 
 	var repoIDs []int64
@@ -148,7 +148,7 @@ func resourceGithubDependabotOrganizationSecretCreate(ctx context.Context, d *sc
 	}
 
 	if len(encryptedValue) == 0 {
-		plaintextValue, _ := tfschemautil.GetKeysOk[string](d, "value", "plaintext_value")
+		plaintextValue, _ := tfpluginv2util.GetKeysOk[string](d, "value", "plaintext_value")
 
 		encryptedBytes, err := encryptPlaintext(plaintextValue, publicKey)
 		if err != nil {
@@ -272,7 +272,7 @@ func resourceGithubDependabotOrganizationSecretUpdate(ctx context.Context, d *sc
 
 	secretName := d.Get("secret_name").(string)
 	keyID := d.Get("key_id").(string)
-	encryptedValue, _ := tfschemautil.GetKeysOk[string](d, "value_encrypted", "encrypted_value")
+	encryptedValue, _ := tfpluginv2util.GetKeysOk[string](d, "value_encrypted", "encrypted_value")
 	visibility := d.Get("visibility").(string)
 
 	var repoIDs []int64
@@ -297,7 +297,7 @@ func resourceGithubDependabotOrganizationSecretUpdate(ctx context.Context, d *sc
 	}
 
 	if len(encryptedValue) == 0 {
-		plaintextValue, _ := tfschemautil.GetKeysOk[string](d, "value", "plaintext_value")
+		plaintextValue, _ := tfpluginv2util.GetKeysOk[string](d, "value", "plaintext_value")
 
 		encryptedBytes, err := encryptPlaintext(plaintextValue, publicKey)
 		if err != nil {

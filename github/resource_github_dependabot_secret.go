@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/integrations/terraform-provider-github/v6/internal/tfschemautil"
+	"github.com/integrations/terraform-provider-github/v6/internal/tfpluginv2util"
 )
 
 func resourceGithubDependabotSecret() *schema.Resource {
@@ -127,7 +127,7 @@ func resourceGithubDependabotSecretCreate(ctx context.Context, d *schema.Resourc
 	repoName := d.Get("repository").(string)
 	secretName := d.Get("secret_name").(string)
 	keyID := d.Get("key_id").(string)
-	encryptedValue, _ := tfschemautil.GetKeysOk[string](d, "value_encrypted", "encrypted_value")
+	encryptedValue, _ := tfpluginv2util.GetKeysOk[string](d, "value_encrypted", "encrypted_value")
 
 	repo, _, err := client.Repositories.Get(ctx, owner, repoName)
 	if err != nil {
@@ -147,7 +147,7 @@ func resourceGithubDependabotSecretCreate(ctx context.Context, d *schema.Resourc
 	}
 
 	if len(encryptedValue) == 0 {
-		plaintextValue, _ := tfschemautil.GetKeysOk[string](d, "value", "plaintext_value")
+		plaintextValue, _ := tfpluginv2util.GetKeysOk[string](d, "value", "plaintext_value")
 
 		encryptedBytes, err := encryptPlaintext(plaintextValue, publicKey)
 		if err != nil {
@@ -249,7 +249,7 @@ func resourceGithubDependabotSecretUpdate(ctx context.Context, d *schema.Resourc
 	repoName := d.Get("repository").(string)
 	secretName := d.Get("secret_name").(string)
 	keyID := d.Get("key_id").(string)
-	encryptedValue, _ := tfschemautil.GetKeysOk[string](d, "value_encrypted", "encrypted_value")
+	encryptedValue, _ := tfpluginv2util.GetKeysOk[string](d, "value_encrypted", "encrypted_value")
 
 	var publicKey string
 	if len(keyID) == 0 || len(encryptedValue) == 0 {
@@ -263,7 +263,7 @@ func resourceGithubDependabotSecretUpdate(ctx context.Context, d *schema.Resourc
 	}
 
 	if len(encryptedValue) == 0 {
-		plaintextValue, _ := tfschemautil.GetKeysOk[string](d, "value", "plaintext_value")
+		plaintextValue, _ := tfpluginv2util.GetKeysOk[string](d, "value", "plaintext_value")
 
 		encryptedBytes, err := encryptPlaintext(plaintextValue, publicKey)
 		if err != nil {

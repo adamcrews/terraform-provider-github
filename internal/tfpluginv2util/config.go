@@ -1,4 +1,4 @@
-package tfschemautil
+package tfpluginv2util
 
 // IsSet checks if the given path in the resource data has been set.
 func IsSet(d ConfigDataGetter, pathStr string) bool {

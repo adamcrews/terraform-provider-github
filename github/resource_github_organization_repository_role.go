@@ -12,8 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-
-	"github.com/integrations/terraform-provider-github/v6/internal/tfschemautil"
+	"github.com/integrations/terraform-provider-github/v6/internal/tfpluginv2util"
 )
 
 func resourceGithubOrganizationRepositoryRole() *schema.Resource {
@@ -91,7 +90,7 @@ func resourceGithubOrganizationRepositoryRoleCreate(ctx context.Context, d *sche
 	name, _ := d.Get("name").(string)
 	description, _ := d.Get("description").(string)
 	baseRole, _ := d.Get("base_role").(string)
-	permissions := tfschemautil.GetSet[string](d, "permissions", false)
+	permissions := tfpluginv2util.GetSet[string](d, "permissions", false)
 
 	req := github.CreateCustomRepoRoleRequest{
 		Name:        name,
@@ -166,7 +165,7 @@ func resourceGithubOrganizationRepositoryRoleUpdate(ctx context.Context, d *sche
 	name, _ := d.Get("name").(string)
 	description, _ := d.Get("description").(string)
 	baseRole, _ := d.Get("base_role").(string)
-	permissions := tfschemautil.GetSet[string](d, "permissions", false)
+	permissions := tfpluginv2util.GetSet[string](d, "permissions", false)
 
 	req := github.UpdateCustomRepoRoleRequest{
 		Name:        new(name),

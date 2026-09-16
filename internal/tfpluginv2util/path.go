@@ -1,4 +1,4 @@
-package tfschemautil
+package tfpluginv2util
 
 import (
 	"strconv"

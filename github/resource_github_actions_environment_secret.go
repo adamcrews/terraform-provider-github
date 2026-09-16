@@ -13,7 +13,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/integrations/terraform-provider-github/v6/internal/tfschemautil"
+	"github.com/integrations/terraform-provider-github/v6/internal/tfpluginv2util"
 )
 
 func resourceGithubActionsEnvironmentSecret() *schema.Resource {
@@ -134,7 +134,7 @@ func resourceGithubActionsEnvironmentSecretCreate(ctx context.Context, d *schema
 	envName, _ := d.Get("environment").(string)
 	secretName, _ := d.Get("secret_name").(string)
 	keyID, _ := d.Get("key_id").(string)
-	encryptedValue, _ := tfschemautil.GetKeysOk[string](d, "value_encrypted", "encrypted_value")
+	encryptedValue, _ := tfpluginv2util.GetKeysOk[string](d, "value_encrypted", "encrypted_value")
 
 	repo, _, err := client.Repositories.Get(ctx, owner, repoName)
 	if err != nil {
@@ -154,7 +154,7 @@ func resourceGithubActionsEnvironmentSecretCreate(ctx context.Context, d *schema
 	}
 
 	if len(encryptedValue) == 0 {
-		plaintextValue, _ := tfschemautil.GetKeysOk[string](d, "value", "plaintext_value")
+		plaintextValue, _ := tfpluginv2util.GetKeysOk[string](d, "value", "plaintext_value")
 
 		encryptedBytes, err := encryptPlaintext(plaintextValue, publicKey)
 		if err != nil {
@@ -257,7 +257,7 @@ func resourceGithubActionsEnvironmentSecretUpdate(ctx context.Context, d *schema
 	envName, _ := d.Get("environment").(string)
 	secretName, _ := d.Get("secret_name").(string)
 	keyID, _ := d.Get("key_id").(string)
-	encryptedValue, _ := tfschemautil.GetKeysOk[string](d, "value_encrypted", "encrypted_value")
+	encryptedValue, _ := tfpluginv2util.GetKeysOk[string](d, "value_encrypted", "encrypted_value")
 
 	var publicKey string
 	if len(keyID) == 0 || len(encryptedValue) == 0 {
@@ -271,7 +271,7 @@ func resourceGithubActionsEnvironmentSecretUpdate(ctx context.Context, d *schema
 	}
 
 	if len(encryptedValue) == 0 {
-		plaintextValue, _ := tfschemautil.GetKeysOk[string](d, "value", "plaintext_value")
+		plaintextValue, _ := tfpluginv2util.GetKeysOk[string](d, "value", "plaintext_value")
 
 		encryptedBytes, err := encryptPlaintext(plaintextValue, publicKey)
 		if err != nil {

@@ -10,7 +10,7 @@ import (
 	"github.com/google/go-github/v92/github"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/integrations/terraform-provider-github/v6/internal/tfschemautil"
+	"github.com/integrations/terraform-provider-github/v6/internal/tfpluginv2util"
 )
 
 func resourceGithubIssue() *schema.Resource {
@@ -88,13 +88,13 @@ func resourceGithubIssueCreateOrUpdate(d *schema.ResourceData, meta any) error {
 		return err
 	}
 
-	repoName := tfschemautil.Get[string](d, "repository")
-	title := tfschemautil.Get[string](d, "title")
-	body := tfschemautil.Get[string](d, "body")
-	milestone := tfschemautil.Get[int](d, "milestone_number")
+	repoName := tfpluginv2util.Get[string](d, "repository")
+	title := tfpluginv2util.Get[string](d, "title")
+	body := tfpluginv2util.Get[string](d, "body")
+	milestone := tfpluginv2util.Get[int](d, "milestone_number")
 
-	labels := tfschemautil.GetSet[string](d, "labels", true)
-	asignees := tfschemautil.GetSet[string](d, "assignees", true)
+	labels := tfpluginv2util.GetSet[string](d, "labels", true)
+	asignees := tfpluginv2util.GetSet[string](d, "assignees", true)
 
 	var issue *github.Issue
 	var resp *github.Response

@@ -14,7 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/integrations/terraform-provider-github/v6/internal/tfschemautil"
+	"github.com/integrations/terraform-provider-github/v6/internal/tfpluginv2util"
 )
 
 func resourceGithubRepositoryMilestone() *schema.Resource {
@@ -108,10 +108,10 @@ func resourceGithubRepositoryMilestoneCreate(d *schema.ResourceData, meta any) e
 		Title: title,
 	}
 
-	if v, ok := tfschemautil.GetOk[string](d, "description"); ok && len(v) > 0 {
+	if v, ok := tfpluginv2util.GetOk[string](d, "description"); ok && len(v) > 0 {
 		req.Description = new(v)
 	}
-	if v, ok := tfschemautil.GetOk[string](d, "due_date"); ok && len(v) > 0 {
+	if v, ok := tfpluginv2util.GetOk[string](d, "due_date"); ok && len(v) > 0 {
 		dueDate, err := time.Parse(layoutISO, v)
 		if err != nil {
 			return err
@@ -121,7 +121,7 @@ func resourceGithubRepositoryMilestoneCreate(d *schema.ResourceData, meta any) e
 			Time: date,
 		}
 	}
-	if v, ok := tfschemautil.GetOk[string](d, "state"); ok && len(v) > 0 {
+	if v, ok := tfpluginv2util.GetOk[string](d, "state"); ok && len(v) > 0 {
 		req.State = new(v)
 	}
 

@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/integrations/terraform-provider-github/v6/internal/tfschemautil"
+	"github.com/integrations/terraform-provider-github/v6/internal/tfpluginv2util"
 )
 
 func resourceGithubTeam() *schema.Resource {
@@ -125,16 +125,16 @@ func resourceGithubTeamCreate(ctx context.Context, d *schema.ResourceData, m any
 		return diags
 	}
 
-	name := tfschemautil.Get[string](d, "name")
+	name := tfpluginv2util.Get[string](d, "name")
 
 	req := github.CreateTeamRequest{
 		Name:                name,
-		Description:         new(tfschemautil.Get[string](d, "description")),
-		Privacy:             new(tfschemautil.Get[string](d, "privacy")),
-		NotificationSetting: new(tfschemautil.Get[string](d, "notification_setting")),
+		Description:         new(tfpluginv2util.Get[string](d, "description")),
+		Privacy:             new(tfpluginv2util.Get[string](d, "privacy")),
+		NotificationSetting: new(tfpluginv2util.Get[string](d, "notification_setting")),
 	}
 
-	if parentTeamIDStr, ok := tfschemautil.GetOk[string](d, "parent_team_id"); ok {
+	if parentTeamIDStr, ok := tfpluginv2util.GetOk[string](d, "parent_team_id"); ok {
 		parentTeamID, ok := parseTeamID(parentTeamIDStr)
 		if ok {
 			req.ParentTeamID = new(parentTeamID)
@@ -143,7 +143,7 @@ func resourceGithubTeamCreate(ctx context.Context, d *schema.ResourceData, m any
 		}
 	}
 
-	if ldapDNVal, ok := tfschemautil.GetOk[string](d, "ldap_dn"); ok {
+	if ldapDNVal, ok := tfpluginv2util.GetOk[string](d, "ldap_dn"); ok {
 		req.LDAPDN = new(ldapDNVal)
 	}
 
@@ -331,13 +331,13 @@ func resourceGithubTeamUpdate(ctx context.Context, d *schema.ResourceData, m any
 	}
 
 	req := github.UpdateTeamRequest{
-		Name:                new(tfschemautil.Get[string](d, "name")),
-		Description:         new(tfschemautil.Get[string](d, "description")),
-		Privacy:             new(tfschemautil.Get[string](d, "privacy")),
-		NotificationSetting: new(tfschemautil.Get[string](d, "notification_setting")),
+		Name:                new(tfpluginv2util.Get[string](d, "name")),
+		Description:         new(tfpluginv2util.Get[string](d, "description")),
+		Privacy:             new(tfpluginv2util.Get[string](d, "privacy")),
+		NotificationSetting: new(tfpluginv2util.Get[string](d, "notification_setting")),
 	}
 
-	if parentTeamIDStr, ok := tfschemautil.GetOk[string](d, "parent_team_id"); ok {
+	if parentTeamIDStr, ok := tfpluginv2util.GetOk[string](d, "parent_team_id"); ok {
 		parentTeamID, ok := parseTeamID(parentTeamIDStr)
 		if ok {
 			req.ParentTeamID = new(parentTeamID)

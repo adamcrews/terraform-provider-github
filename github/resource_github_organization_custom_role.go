@@ -9,7 +9,7 @@ import (
 	"github.com/google/go-github/v92/github"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/integrations/terraform-provider-github/v6/internal/tfschemautil"
+	"github.com/integrations/terraform-provider-github/v6/internal/tfpluginv2util"
 )
 
 func resourceGithubOrganizationCustomRole() *schema.Resource {
@@ -65,7 +65,7 @@ func resourceGithubOrganizationCustomRoleCreate(d *schema.ResourceData, meta any
 	name, _ := d.Get("name").(string)
 	description, _ := d.Get("description").(string)
 	baseRole, _ := d.Get("base_role").(string)
-	permissions := tfschemautil.GetSet[string](d, "permissions", false)
+	permissions := tfpluginv2util.GetSet[string](d, "permissions", false)
 
 	role, _, err := client.Organizations.CreateCustomRepoRole(ctx, orgName, github.CreateCustomRepoRoleRequest{
 		Name:        name,
@@ -150,7 +150,7 @@ func resourceGithubOrganizationCustomRoleUpdate(d *schema.ResourceData, meta any
 	name, _ := d.Get("name").(string)
 	description, _ := d.Get("description").(string)
 	baseRole, _ := d.Get("base_role").(string)
-	permissions := tfschemautil.GetSet[string](d, "permissions", false)
+	permissions := tfpluginv2util.GetSet[string](d, "permissions", false)
 
 	req := github.UpdateCustomRepoRoleRequest{
 		Name:        new(name),

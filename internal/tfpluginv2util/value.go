@@ -1,4 +1,4 @@
-package tfschemautil
+package tfpluginv2util
 
 // GetValue returns a typed value for the specified key in a [DataGetter] with a boolean representing if the key was set and a bool representing if the type was incorrect.
 func GetValue[T any](d DataGetter, key string) (T, bool, bool) {
