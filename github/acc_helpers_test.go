@@ -566,3 +566,151 @@ func mustUpdateRepositoryDependabotSecret(t *testing.T, repo *github.Repository,
 		t.Fatalf("failed to update test repository dependabot secret: %v", err)
 	}
 }
+
+func mustGetOrganizationAgentsPublicKey(t *testing.T) *github.PublicKey {
+	t.Helper()
+
+	publicKey, _, err := testAccConf.meta.v3client.Agents.GetOrgPublicKey(t.Context(), testAccConf.meta.name)
+	if err != nil {
+		t.Fatalf("failed to get public key for test organization agents: %v", err)
+	}
+
+	return publicKey
+}
+
+func mustCreateTestOrganizationAgentsSecret(t *testing.T) string {
+	t.Helper()
+
+	randomID := acctest.RandString(testRandomIDLength)
+	secretName := strings.ToUpper(fmt.Sprintf("%s%s", strings.ReplaceAll(testResourcePrefix, "-", "_"), randomID))
+
+	publicKey := mustGetOrganizationAgentsPublicKey(t)
+
+	encryptedBytes, err := encryptPlaintext("test", publicKey.GetKey())
+	if err != nil {
+		t.Fatalf("failed to encrypt plaintext for test organization agents secret: %v", err)
+	}
+	encryptedValue := base64.StdEncoding.EncodeToString(encryptedBytes)
+
+	if _, err := testAccConf.meta.v3client.Agents.CreateOrUpdateOrgSecret(t.Context(), testAccConf.meta.name, secretName, github.SecretOrgRequest{
+		Visibility:     "all",
+		KeyID:          publicKey.GetKeyID(),
+		EncryptedValue: encryptedValue,
+	}); err != nil {
+		t.Fatalf("failed to create test organization agents secret: %v", err)
+	}
+
+	t.Cleanup(func() {
+		if _, err := testAccConf.meta.v3client.Agents.DeleteOrgSecret(context.Background(), testAccConf.meta.name, secretName); err != nil {
+			if err, ok := errors.AsType[*github.ErrorResponse](err); ok && err.Response.StatusCode == 404 {
+				return
+			}
+			t.Logf("failed to delete test organization agents secret %s: %v", secretName, err)
+		}
+	})
+
+	return secretName
+}
+
+func mustUpdateOrganizationAgentsSecret(t *testing.T, name, value string) {
+	t.Helper()
+
+	publicKey := mustGetOrganizationAgentsPublicKey(t)
+
+	encryptedBytes, err := encryptPlaintext(value, publicKey.GetKey())
+	if err != nil {
+		t.Fatalf("failed to encrypt plaintext for test organization agents secret: %v", err)
+	}
+	encryptedValue := base64.StdEncoding.EncodeToString(encryptedBytes)
+
+	if _, err := testAccConf.meta.v3client.Agents.CreateOrUpdateOrgSecret(t.Context(), testAccConf.meta.name, name, github.SecretOrgRequest{
+		Visibility:     "all",
+		KeyID:          publicKey.GetKeyID(),
+		EncryptedValue: encryptedValue,
+	}); err != nil {
+		t.Fatalf("failed to update test organization agents secret: %v", err)
+	}
+}
+
+func mustCreateTestRepositoryAgentsSecret(t *testing.T, repo *github.Repository) string {
+	t.Helper()
+
+	ctx := t.Context()
+
+	randomID := acctest.RandString(testRandomIDLength)
+	secretName := strings.ToUpper(fmt.Sprintf("%s%s", strings.ReplaceAll(testResourcePrefix, "-", "_"), randomID))
+
+	publicKey := mustGetTestRepositoryAgentsPublicKey(t, repo)
+
+	encryptedBytes, err := encryptPlaintext("test", publicKey.GetKey())
+	if err != nil {
+		t.Fatalf("failed to encrypt plaintext for test repository agents secret: %v", err)
+	}
+	encryptedValue := base64.StdEncoding.EncodeToString(encryptedBytes)
+
+	if _, err := testAccConf.meta.v3client.Agents.CreateOrUpdateRepoSecret(ctx, testAccConf.meta.name, repo.GetName(), secretName, github.SecretRequest{
+		KeyID:          publicKey.GetKeyID(),
+		EncryptedValue: encryptedValue,
+	}); err != nil {
+		t.Fatalf("failed to create test repository agents secret: %v", err)
+	}
+
+	return secretName
+}
+
+func mustGetTestRepositoryAgentsPublicKey(t *testing.T, repo *github.Repository) *github.PublicKey {
+	t.Helper()
+
+	publicKey, _, err := testAccConf.meta.v3client.Agents.GetRepoPublicKey(t.Context(), testAccConf.meta.name, repo.GetName())
+	if err != nil {
+		t.Fatalf("failed to get public key for test repository agents: %v", err)
+	}
+
+	return publicKey
+}
+
+func mustUpdateTestRepositoryAgentsSecret(t *testing.T, repo *github.Repository, name, value string) {
+	t.Helper()
+
+	publicKey := mustGetTestRepositoryAgentsPublicKey(t, repo)
+
+	encryptedBytes, err := encryptPlaintext(value, publicKey.GetKey())
+	if err != nil {
+		t.Fatalf("failed to encrypt plaintext for test repository agents secret: %v", err)
+	}
+	encryptedValue := base64.StdEncoding.EncodeToString(encryptedBytes)
+
+	if _, err := testAccConf.meta.v3client.Agents.CreateOrUpdateRepoSecret(t.Context(), testAccConf.meta.name, repo.GetName(), name, github.SecretRequest{
+		KeyID:          publicKey.GetKeyID(),
+		EncryptedValue: encryptedValue,
+	}); err != nil {
+		t.Fatalf("failed to update test repository agents secret: %v", err)
+	}
+}
+
+func mustSetAgentsOrgSecretSelectedRepos(t *testing.T, secretName string, repoIDs []int64) {
+	t.Helper()
+
+	if _, err := testAccConf.meta.v3client.Agents.SetSelectedReposForOrgSecret(t.Context(), testAccConf.meta.name, secretName, repoIDs); err != nil {
+		t.Fatalf("failed to set selected repositories for agents org secret %s: %v", secretName, err)
+	}
+}
+
+func mustRemoveAgentsOrgSecretSelectedRepo(t *testing.T, secretName string, repoID int64) {
+	t.Helper()
+
+	if _, err := testAccConf.meta.v3client.Agents.RemoveSelectedRepoFromOrgSecret(t.Context(), testAccConf.meta.name, secretName, repoID); err != nil {
+		t.Fatalf("failed to remove repository %d from agents org secret %s: %v", repoID, secretName, err)
+	}
+}
+
+func mustDeleteOrganizationAgentsSecret(t *testing.T, secretName string) {
+	t.Helper()
+
+	if _, err := testAccConf.meta.v3client.Agents.DeleteOrgSecret(t.Context(), testAccConf.meta.name, secretName); err != nil {
+		if err, ok := errors.AsType[*github.ErrorResponse](err); ok && err.Response.StatusCode == 404 {
+			return
+		}
+		t.Fatalf("failed to delete agents org secret %s: %v", secretName, err)
+	}
+}
